@@ -12,7 +12,9 @@ export default function Home() { // create a website named Home and make it the 
       value: string // value = parameter19
 
     ) => {
-
+      if (value !== "" && isNaN(Number(value))) { // (isNan() checks if the number is a valid number, Number() converts the text to a number )
+        return;
+      }
       const newPin = [...pin]; // creates a copy of the pin array
 
       newPin[index] = value; // changes the box that the employee typed in
