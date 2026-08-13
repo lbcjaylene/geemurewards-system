@@ -4,6 +4,7 @@ import Image from "next/image";
 
 export default function Home() { // create a website named Home and make it the default page for this route
   const [pin, setPin] = useState(["", "", "", "", "", ""]); // remembers the six pin digits (const = creating a variable) (useState = create memory)
+  const [errorMessage, setErrorMessage] = useState(""); // displays a message if the incorrect pin was entered
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const handlePinChange = ( // which box ? index and what value was typed
 
@@ -26,7 +27,27 @@ export default function Home() { // create a website named Home and make it the 
         inputRefs.current[index + 1]?.focus(); // find the next input ( focus = put the cursor there ) ( ?. = optional chaining = if that input exists, focus it. if it doesnt, dont crash )
 
       }
+    }
+
+      const handleLogin = () => {
+        const enteredPin = pin.join("");
+
+        if (enteredPin.length !== 6) {
+          setErrorMessage("Please enter all 6 digits.");
+          return;
+        }
+        if (enteredPin !== "123456") {
+          setErrorMessage("Incorrect PIN");
+          setPin(["", "", "", "", "", ""]);
+          inputRefs.current[0]?.focus();
+          return;
+        }
+        
+        setErrorMessage("");
+        console.log("Login successful!");
+    
     };
+
   return ( // display this on the screen
     <main className="min-h-screen bg-[#59c3eb] flex items-center justify-center px-6"> 
       <div className="w-full max-w-md rounded-3xl bg-white p-10 shadow-xl">
@@ -79,7 +100,15 @@ export default function Home() { // create a website named Home and make it the 
             ))}
           </div>
 
-          <button className="mt-8 w-full rounded-2xl bg-[#ffd34f] px-6 py-4 text-lg font-bold text-black transition hover:brightness-95">
+          <button 
+          onClick = {handleLogin}
+          className="mt-8 w-full rounded-2xl bg-[#ffd34f] px-6 py-4 text-lg font-bold text-black transition hover:brightness-95">
+            {errorMessage && (
+              <p className="mt-4 text-sm font-semibold text-red-500">
+                {errorMessage}
+              </p>
+            )}
+
             LOGIN
           </button>
         </div>
