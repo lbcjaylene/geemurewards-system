@@ -1,11 +1,26 @@
 "use client";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Home() { // create a website named Home and make it the default page for this route
   const [pin, setPin] = useState(["", "", "", "", "", ""]); // remembers the six pin digits (const = creating a variable) (useState = create memory)
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState(""); // displays a message if the incorrect pin was entered
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const validatePin = (enteredPin: string) => {
+      if (enteredPin !== "123456") {
+        setErrorMessage("Incorrect PIN");
+
+        setPin(["", "", "", "", "", ""]);
+
+        inputRefs.current[0]?.focus();
+        return;
+      }
+      setErrorMessage("");
+      router.push("/dashboard");
+    };
+
     const handlePinChange = ( // which box ? index and what value was typed
 
       index: number, // index = parameter ( what index are we in? )
@@ -25,7 +40,9 @@ export default function Home() { // create a website named Home and make it the 
       if (value && index < 5){ // if the employee actually typed something and this isnt the last box
 
         inputRefs.current[index + 1]?.focus(); // find the next input ( focus = put the cursor there ) ( ?. = optional chaining = if that input exists, focus it. if it doesnt, dont crash )
-
+      }
+        if (newPin.every((digit) => digit !== "")) {
+          validatePin(newPin.join(""));
       }
     }
 
@@ -36,16 +53,8 @@ export default function Home() { // create a website named Home and make it the 
           setErrorMessage("Please enter all 6 digits.");
           return;
         }
-        if (enteredPin !== "123456") {
-          setErrorMessage("Incorrect PIN");
-          setPin(["", "", "", "", "", ""]);
-          inputRefs.current[0]?.focus();
-          return;
-        }
         
-        setErrorMessage("");
-        console.log("Login successful!");
-    
+        validatePin(enteredPin);
     };
 
   return ( // display this on the screen
@@ -93,6 +102,9 @@ export default function Home() { // create a website named Home and make it the 
                     index > 0 // checks to make sure we are already not in the first box
                   ) {
                     inputRefs.current[index - 1]?.focus();
+                  }
+                  if (event.key == "Enter") {
+                    handleLogin();
                   }
                 }}
                 className="h-14 w-12 rounded-xl border-2 border-gray-200 bg-white text-center text-xl font-bold text-black outline-none focus:border-[#2f9de0]"
