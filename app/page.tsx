@@ -1,64 +1,79 @@
 "use client";
+
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
-export default function Home() { // create a website named Home and make it the default page for this route
-  const [pin, setPin] = useState(["", "", "", "", "", ""]); // remembers the six pin digits (const = creating a variable) (useState = create memory)
+export default function Home() {
+  // Remembers the six PIN digits
+  const [pin, setPin] = useState(["", "", "", "", "", ""]);
+
+  // Displays a message if the PIN is incorrect
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Gives us navigation between pages
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState(""); // displays a message if the incorrect pin was entered
+
+  // Remembers references to each PIN input box
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-    const validatePin = (enteredPin: string) => {
-      if (enteredPin !== "123456") {
-        setErrorMessage("Incorrect PIN");
 
-        setPin(["", "", "", "", "", ""]);
+  const validatePin = (enteredPin: string) => {
+    if (enteredPin !== "123456") {
+      setErrorMessage("Incorrect PIN");
 
-        inputRefs.current[0]?.focus();
-        return;
-      }
-      setErrorMessage("");
-      router.push("/dashboard");
-    };
+      setPin(["", "", "", "", "", ""]);
 
-    const handlePinChange = ( // which box ? index and what value was typed
+      inputRefs.current[0]?.focus();
 
-      index: number, // index = parameter ( what index are we in? )
-
-      value: string // value = parameter19
-
-    ) => {
-      if (value !== "" && isNaN(Number(value))) { // (isNan() checks if the number is a valid number, Number() converts the text to a number )
-        return;
-      }
-      const newPin = [...pin]; // creates a copy of the pin array
-
-      newPin[index] = value; // changes the box that the employee typed in
-
-      setPin(newPin); // replaces the old pin with a new one
-
-      if (value && index < 5){ // if the employee actually typed something and this isnt the last box
-
-        inputRefs.current[index + 1]?.focus(); // find the next input ( focus = put the cursor there ) ( ?. = optional chaining = if that input exists, focus it. if it doesnt, dont crash )
-      }
-        if (newPin.every((digit) => digit !== "")) {
-          validatePin(newPin.join(""));
-      }
+      return;
     }
 
-      const handleLogin = () => {
-        const enteredPin = pin.join("");
+    setErrorMessage("");
 
-        if (enteredPin.length !== 6) {
-          setErrorMessage("Please enter all 6 digits.");
-          return;
-        }
-        
-        validatePin(enteredPin);
-    };
+    router.push("/dashboard");
+  };
 
-  return ( // display this on the screen
-    <main className="min-h-screen bg-[#59c3eb] flex items-center justify-center px-6"> 
+  const handlePinChange = (
+    index: number,
+    value: string
+  ) => {
+    // Only allow numbers or an empty value
+    if (value !== "" && isNaN(Number(value))) {
+      return;
+    }
+
+    // Create a copy of the PIN array
+    const newPin = [...pin];
+
+    // Change the box the employee typed in
+    newPin[index] = value;
+
+    // Replace the old PIN state
+    setPin(newPin);
+
+    // Automatically move to the next box
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Automatically attempt login when all 6 boxes are filled
+    if (newPin.every((digit) => digit !== "")) {
+      validatePin(newPin.join(""));
+    }
+  };
+
+  const handleLogin = () => {
+    const enteredPin = pin.join("");
+
+    if (enteredPin.length !== 6) {
+      setErrorMessage("Please enter all 6 digits.");
+      return;
+    }
+
+    validatePin(enteredPin);
+  };
+
+  return (
+    <main className="min-h-screen bg-[#59c3eb] flex items-center justify-center px-6">
       <div className="w-full max-w-md rounded-3xl bg-white p-10 shadow-xl">
         <div className="text-center">
           <div className="mb-6 text-5xl">⭐</div>
@@ -91,19 +106,20 @@ export default function Home() { // create a website named Home and make it the 
                 type="password"
                 inputMode="numeric"
                 maxLength={1}
-                value={digit} // connects each visible box to the matching value inside the pin state 
-                onChange={(event) => // whenever the employee changes the input box, run handlePinChange
-                  handlePinChange(index, event.target.value) // ( event = what just happened in the browser )
+                value={digit}
+                onChange={(event) =>
+                  handlePinChange(index, event.target.value)
                 }
-                onKeyDown={(event) =>{
+                onKeyDown={(event) => {
                   if (
-                    event.key == "Backspace" && // checks whether the key was pressed was Backspace
-                    pin[index] == "" && // checks if the current box is empty
-                    index > 0 // checks to make sure we are already not in the first box
+                    event.key === "Backspace" &&
+                    pin[index] === "" &&
+                    index > 0
                   ) {
                     inputRefs.current[index - 1]?.focus();
                   }
-                  if (event.key == "Enter") {
+
+                  if (event.key === "Enter") {
                     handleLogin();
                   }
                 }}
@@ -112,15 +128,16 @@ export default function Home() { // create a website named Home and make it the 
             ))}
           </div>
 
-          <button 
-          onClick = {handleLogin}
-          className="mt-8 w-full rounded-2xl bg-[#ffd34f] px-6 py-4 text-lg font-bold text-black transition hover:brightness-95">
-            {errorMessage && (
-              <p className="mt-4 text-sm font-semibold text-red-500">
-                {errorMessage}
-              </p>
-            )}
+          {errorMessage && (
+            <p className="mt-4 text-sm font-semibold text-red-500">
+              {errorMessage}
+            </p>
+          )}
 
+          <button
+            onClick={handleLogin}
+            className="mt-8 w-full rounded-2xl bg-[#ffd34f] px-6 py-4 text-lg font-bold text-black transition hover:brightness-95"
+          >
             LOGIN
           </button>
         </div>
