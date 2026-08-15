@@ -4,14 +4,84 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const customers = [
+  {
+    id: 1,
+    firstName: "John",
+    lastName: "Smith",
+    phoneNumber: "3035551234",
+    cardNumber: "10438291",
+    points: 1250,
+  },
+  {
+    id: 2,
+    firstName: "Sarah",
+    lastName: "Smith",
+    phoneNumber: "7205551234",
+    cardNumber: null,
+    points: 800,
+  },
+  {
+    id: 3,
+    firstName: "Amy",
+    lastName: "Lee",
+    phoneNumber: "3034441234",
+    cardNumber: "10577128",
+    points: 2100,
+  },
+];
+
 export default function Dashboard() {
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<typeof customers>([]);
+  const [searchMessage, setSearchMessage] = useState("");
 
   const router = useRouter();
 
   const handleLogout = () => {
     router.push("/");
   };
+
+  const handleSearch = () => {
+    const searchValue = search.trim();
+
+    if (searchValue === "") {
+      setSearchMessage("Please enter a card number or last 4 digits of phone.");
+      setSearchResults([]);
+      return;
+    }
+
+    if (searchValue.length === 4) {
+      const matches = customers.filter((customer) =>
+      customer.phoneNumber.endsWith(searchValue)
+    );
+    
+    setSearchResults(matches);
+    
+    if (matches.length === 0) {
+      setSearchMessage("No accounts found with that phone number.");
+    } else {
+      setSearchMessage("");
+    }
+
+    return;
+
+    }
+    const cardMatch = customers.find(
+      (customer) => customer.cardNumber === searchValue
+    );
+
+    if (cardMatch) {
+      setSearchResults([cardMatch]);
+      setSearchMessage("");
+      return;
+    }
+
+    setSearchResults([]);
+    setSearchMessage("No account found for that card number.");
+    };
+
+  }
 
   return (
     <main className="min-h-screen bg-[#59c3eb] p-8">
