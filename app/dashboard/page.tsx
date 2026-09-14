@@ -4,7 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const customers = [
+interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  cardNumber: string | null;
+  points: number;
+}
+const customers: Customer[] = [
   {
     id: 1,
     firstName: "John",
@@ -33,7 +41,7 @@ const customers = [
 
 export default function Dashboard() {
   const [search, setSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof customers>([]);
+  const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [searchMessage, setSearchMessage] = useState("");
 
   const router = useRouter();
@@ -51,7 +59,15 @@ export default function Dashboard() {
       return;
     }
 
-    if (searchValue.length === 4) {
+    if (searchValue.length !== 4 && searchValue.length !== 8) {
+      setSearchMessage(
+        "Enter either an 8-digit card number or the last 4 digits of a phone number."
+      );
+      setSearchResults([]);
+      return;
+    }
+
+    if (searchValue.length === 4 ) {
       const matches = customers.filter((customer) =>
       customer.phoneNumber.endsWith(searchValue)
     );
@@ -81,7 +97,6 @@ export default function Dashboard() {
     setSearchMessage("No account found for that card number.");
     };
 
-  }
 
   return (
     <main className="min-h-screen bg-[#59c3eb] p-8">
@@ -121,20 +136,73 @@ export default function Dashboard() {
           </h2>
 
           <p className="mt-2 text-sm text-gray-500">
-            Scan a card or search by card number, phone number, or customer name.
+            Scan an 8-digit card or enter the last 4 digits of a phone number.
           </p>
 
           <input
             type="text"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Scan card or search customer..."
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value !== "" && isNaN(Number(value))) {
+                return;
+              }
+
+              setSearch(value);
+            }}
+            placeholder="Scan 8-digit card or enter last 4 of phone"
             className="mt-6 w-full rounded-2xl border-2 border-gray-200 px-5 py-4 text-lg text-black outline-none focus:border-[#2f9de0]"
           />
 
-          <button className="mt-4 w-full rounded-2xl bg-[#2f9de0] px-6 py-4 text-lg font-bold text-white">
+          <button 
+          onClick={handleSearch}
+          className="mt-4 w-full rounded-2xl bg-[#2f9de0] px-6 py-4 text-lg font-bold text-white">
             SEARCH
           </button>
+          {searchMessage && (
+            <p className= "mt-4 text-center text-sm font-semibold text-red-500">
+              {searchMessage}
+            </p>
+          )}
+
+          {searchResults.length > 0 && (
+            <div className="mt-6 space-y-4">
+              {searchResults.map((customer) => (
+                <div
+                  key={customer.id}
+                  className="rounded-2xl border-2 border-gray-200 p-5"
+                >
+                  <p className="text-lg font-bold text-black">
+                    {customer.firstName} {customer.lastName}
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    Phone ending in {customer.phoneNumber.slice(-4)}
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    {customer.cardNumber
+                      ? `Card #${customer.cardNumber}`
+                      : "No card linked"}
+                  </p>
+
+                  <p className="mt-2 font-semibold text-[#2f9de0]">
+                    {customer.points} Points
+                  </p>
+
+                  {!customer.cardNumber && (
+                    <button
+                      type="button"
+                      className="mt-4 rounded-xl bg-[#ffd34f] px-5 py-3 font-bold text-black"
+                    >
+                      + ADD CARD NUMBER
+                    </button>
+                  )}
+              </div>
+            ))}
+          </div>
+        )}
+
         </div>
 
         <div className="my-10 flex items-center gap-4">
