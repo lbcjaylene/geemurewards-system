@@ -3,41 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { customers, Customer } from "@/data/customers";
 
-interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  cardNumber: string | null;
-  points: number;
-}
-const customers: Customer[] = [
-  {
-    id: 1,
-    firstName: "John",
-    lastName: "Smith",
-    phoneNumber: "3035551234",
-    cardNumber: "10438291",
-    points: 1250,
-  },
-  {
-    id: 2,
-    firstName: "Sarah",
-    lastName: "Smith",
-    phoneNumber: "7205551234",
-    cardNumber: null,
-    points: 800,
-  },
-  {
-    id: 3,
-    firstName: "Amy",
-    lastName: "Lee",
-    phoneNumber: "3034441234",
-    cardNumber: "10577128",
-    points: 2100,
-  },
-];
 
 export default function Dashboard() {
   const [search, setSearch] = useState("");
@@ -186,9 +153,12 @@ export default function Dashboard() {
                       : "No card linked"}
                   </p>
 
-                  <p className="mt-2 font-semibold text-[#2f9de0]">
-                    {customer.points} Points
-                  </p>
+                  <Link
+                    href={`/customers/${customer.id}`}
+                    className="mt-4 block w-full rounded-xl bg-[#2f9de0] px-5 py-3 text-center font-bold text-white"
+                  >
+                    OPEN ACCOUNT
+                  </Link>
 
                   {!customer.cardNumber && (
                     <button
